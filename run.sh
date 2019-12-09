@@ -72,7 +72,7 @@ while true; do
 
     sleep 5
 
-    if ! kill ${pid} > /dev/null 2>&1; then
+    if ! kill -0 ${pid} > /dev/null 2>&1; then
         echo "Process did not die. Take a shot!"
     fi
 
