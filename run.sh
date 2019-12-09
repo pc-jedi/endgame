@@ -2,7 +2,32 @@
 
 set -eo pipefail
 
-promode=${PROMODE:-false}
+if [[ "$EUID" -ne 0 ]]
+  then echo "Please run as root"
+  exit
+fi
+
+promode=false
+
+while (( "$#" )); do
+  case "$1" in
+    -p|--pro)
+      promode=true
+      shift 2
+      ;;
+    --) # end argument parsing
+      shift
+      break
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1"
+      exit 1
+      ;;
+    *) # preserve positional arguments
+      shift
+      ;;
+  esac
+done
 
 
 function toArray {
@@ -27,7 +52,25 @@ function intro() {
                               |  \__| $$
                                \$$    $$
                                 \$$$$$$
- v0.1
+ v0.2
+EOF
+    if [[ "$promode" = true ]]; then
+        echo "with pro-mode enabled"
+    else
+        echo "you can enable pro-mode (incl. kernel threads) by starting with -p or --pro"
+    fi
+
+
+    read -p "Press Enter"
+    # clear screen
+    printf "\033c"
+}
+
+function rules() {
+    cat << "EOF"
+THE RULES
+
+Prepare a drink
 EOF
     read -p "Press Enter to start."
     # clear screen
@@ -35,6 +78,8 @@ EOF
 }
 
 intro
+
+rules
 
 while true; do
     # clear screen
@@ -56,24 +101,26 @@ while true; do
     echo "The following process has been selected"
     echo "$pid $process"
 
-    read -p "Use -9 (SIGKILL)? (y/N)" answer
+    read -p "Use -15 (SIGTERM) else -9? (Y/n)" answer
     case ${answer:0:1} in
     y|Y )
-        if ! kill -9 ${pid} > /dev/null 2>&1; then
-            echo "Process was already dead. Take a shot!"
+        if ! kill -15 ${pid}; then
+            echo "Process was already dead. Drink!"
         fi
     ;;
     * )
-        if ! kill -15 ${pid} > /dev/null 2>&1; then
-            echo "Process was already dead. Take a shot!"
+        if ! kill -9 ${pid}; then
+            echo "Process was already dead. Drink!"
         fi
     ;;
     esac
 
+    echo "Waiting 5s for the process to react".
+
     sleep 5
 
-    if ! kill -0 ${pid} > /dev/null 2>&1; then
-        echo "Process did not die. Take a shot!"
+    if kill -0 ${pid} > /dev/null 2>&1;; then
+        echo "Process did not die. Drink!"
     fi
 
     read -p "Press enter to continue with next round"
