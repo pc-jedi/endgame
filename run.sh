@@ -15,11 +15,11 @@ while (( "$#" )); do
   case "$1" in
     -p|--pro)
       promode=true
-      shift 2
+      shift
       ;;
     -s|--skill)
       skillmode=true
-      numberofprocess=3
+      numberofprocess=2
       shift
       ;;
     --) # end argument parsing
@@ -135,9 +135,9 @@ while true; do
             printf "%s\t%s\n" "$i" "${result[$i]}"
         done
 
-        read -p "Which process to kill? (0-2)" answer
+        read -p "Which process to kill? (0-$(( $numberofprocess - 1 )))" answer
         case ${answer} in
-        0|1|2 )
+        0|1 )
             pid=$(echo ${result[${answer}]} | awk '{print $1}')
 
             if ! kill -9 ${pid}; then
