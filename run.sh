@@ -66,7 +66,7 @@ EOF
     if [[ "$skillmode" = true ]]; then
         echo "with skill-mode enabled"
     else
-        echo "you can enable skill-mode (select on out of 3) by starting with -s or --skill"
+        echo "you can enable skill-mode (select one out of 3) by starting with -s or --skill"
     fi
 
     echo
@@ -130,12 +130,12 @@ while true; do
         ;;
         esac
     else
-        echo "Select one of the following process"
+        echo "Select one of the following processes:"
         for i in "${!result[@]}"; do
             printf "%s\t%s\n" "$i" "${result[$i]}"
         done
 
-        read -p "Which process to kill? (0-$(( $numberofprocess - 1 )))" answer
+        read -p "Which process to kill? (0-$(( $numberofprocess - 1 ))) " answer
         case ${answer} in
         0|1 )
             pid=$(echo ${result[${answer}]} | awk '{print $1}')
